@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Pizarra Interactiva</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- IMPORTANTE PARA MÓVIL -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       display: flex;
@@ -16,16 +19,19 @@
     h1 {
       margin: 20px;
     }
+    .controls {
+      margin: 10px;
+    }
     canvas {
       border: 2px solid #000;
       background: white;
       cursor: crosshair;
       touch-action: none;
-      max-width: 100%;
-    }
-    
-    .controls {
-      margin: 10px;
+      display: block;
+      margin: 0 auto;
+      width: 100%;
+      max-width: 800px;
+      height: auto;
     }
   </style>
 </head>
@@ -47,17 +53,12 @@
 
     function getPos(evt) {
       const rect = canvas.getBoundingClientRect();
-      if (evt.touches) {
-        return {
-          x: evt.touches[0].clientX - rect.left,
-          y: evt.touches[0].clientY - rect.top
-        };
-      } else {
-        return {
-          x: evt.clientX - rect.left,
-          y: evt.clientY - rect.top
-        };
-      }
+      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+      return {
+        x: (clientX - rect.left) * (canvas.width / rect.width),
+        y: (clientY - rect.top) * (canvas.height / rect.height)
+      };
     }
 
     function empezarDibujo(e) {
@@ -82,6 +83,7 @@
 
     function terminarDibujo() {
       pintando = false;
+      ctx.closePath();
     }
 
     // Eventos para mouse
