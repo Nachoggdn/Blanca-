@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Pizarra Interactiva</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- IMPORTANTE PARA MÓVIL -->
   <style>
     body {
       margin: 0;
@@ -20,6 +21,7 @@
       background: white;
       cursor: crosshair;
       touch-action: none;
+      max-width: 100%;
     }
     .controls {
       margin: 10px;
@@ -42,34 +44,56 @@
     const ctx = canvas.getContext('2d');
     let pintando = false;
 
-    function getMousePos(evt) {
+    function getPos(evt) {
       const rect = canvas.getBoundingClientRect();
-      return {
-        x: evt.clientX - rect.left,
-        y: evt.clientY - rect.top
-      };
+      if (evt.touches) {
+        return {
+          x: evt.touches[0].clientX - rect.left,
+          y: evt.touches[0].clientY - rect.top
+        };
+      } else {
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      }
     }
 
-    canvas.addEventListener('mousedown', e => {
+    function empezarDibujo(e) {
+      e.preventDefault();
       pintando = true;
-      const pos = getMousePos(e);
+      const pos = getPos(e);
       ctx.beginPath();
       ctx.moveTo(pos.x, pos.y);
-    });
+    }
 
-    canvas.addEventListener('mousemove', e => {
+    function dibujar(e) {
       if (!pintando) return;
-      const pos = getMousePos(e);
+      e.preventDefault();
+      const pos = getPos(e);
       ctx.lineTo(pos.x, pos.y);
       ctx.strokeStyle = document.getElementById('color').value;
       ctx.lineWidth = document.getElementById('grosor').value;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.stroke();
-    });
+    }
 
-    canvas.addEventListener('mouseup', () => pintando = false);
-    canvas.addEventListener('mouseleave', () => pintando = false);
+    function terminarDibujo() {
+      pintando = false;
+    }
+
+    // Eventos para mouse
+    canvas.addEventListener('mousedown', empezarDibujo);
+    canvas.addEventListener('mousemove', dibujar);
+    canvas.addEventListener('mouseup', terminarDibujo);
+    canvas.addEventListener('mouseleave', terminarDibujo);
+
+    // Eventos para touch
+    canvas.addEventListener('touchstart', empezarDibujo);
+    canvas.addEventListener('touchmove', dibujar);
+    canvas.addEventListener('touchend', terminarDibujo);
+    canvas.addEventListener('touchcancel', terminarDibujo);
 
     function limpiarCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
