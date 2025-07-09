@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pizarra Interactiva</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      margin: 20px;
+    }
+    canvas {
+      border: 2px solid #000;
+      background: white;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .controls {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pizarra Interactiva</h1>
+
+  <div>
+
+
+  </div>
+
+  <div class="controls">
+    <label for="color">HOla: </label>
+    <input type="color" id="color" value="#000000">
+    <label for="grosor">Grosor: </label>
+    <input type="range" id="grosor" min="1" max="20" value="2">
+    <button onclick="limpiarCanvas()">Limpiar</button>
+  </div>
+  <canvas id="pizarra" width="800" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById('pizarra');
+    const ctx = canvas.getContext('2d');
+    let pintando = false;
+
+    function getMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+      };
+    }
+ 
+
+    canvas.addEventListener('mousedown', e => {
+      pintando = true;
+      const pos = getMousePos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (!pintando) return;
+      const pos = getMousePos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.strokeStyle = document.getElementById('color').value;
+      ctx.lineWidth = document.getElementById('grosor').value;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+    });
+
+    canvas.addEventListener('mouseup', () => pintando = false);
+    canvas.addEventListener('mouseleave', () => pintando = false);
+
+    function limpiarCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</body>
+</html>
